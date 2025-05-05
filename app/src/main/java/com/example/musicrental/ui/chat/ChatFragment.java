@@ -1,21 +1,28 @@
-// app/src/main/java/com/example/musicrental/ui/chat/ChatFragment.java
 package com.example.musicrental.ui.chat;
 
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
-import androidx.annotation.*;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.musicrental.R;
+
 import com.example.musicrental.data.MessageDto;
 import com.example.musicrental.databinding.FragmentChatBinding;
 import com.example.musicrental.repository.ChatRepository;
 import com.example.musicrental.util.Prefs;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import retrofit2.*;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatFragment extends Fragment {
 
@@ -49,7 +56,7 @@ public class ChatFragment extends Fragment {
         otherId = requireArguments().getLong(ARG_OTHER_ID);
 
         adapter = new ChatAdapter(data);
-        vb.rvChat.setLayoutManager(new LinearLayoutManager(getContext()));
+        vb.rvChat.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rvChat.setAdapter(adapter);
 
         loadHistory();
@@ -57,35 +64,66 @@ public class ChatFragment extends Fragment {
         vb.btnSend.setOnClickListener(x -> {
             String txt = vb.etMessage.getText().toString().trim();
             if (txt.isEmpty()) return;
+
             long me = Prefs.get().getUserId();
+
+            // Конструктор теперь 6-параметрический, подтягиваем fromEmail=null
             MessageDto msg = new MessageDto(
-                    null, me, otherId, txt, Instant.now().toString()
+                    null,
+                    me,
+                    otherId,
+                    txt,
+                    Instant.now().toString(),
+                    null
             );
-            repo.send(msg, new Callback<>() {
-                @Override public void onResponse(Call<MessageDto> c, Response<MessageDto> r) {
-                    if (r.isSuccessful() && r.body()!=null) {
-                        adapter.add(r.body());
+
+            repo.send(msg, new Callback<MessageDto>() {
+                @Override public void onResponse(Call<MessageDto> call,
+                                                 Response<MessageDto> resp) {
+                    if (resp.isSuccessful() && resp.body() != null) {
+                        adapter.add(resp.body());
                         vb.etMessage.setText("");
-                        vb.rvChat.scrollToPosition(data.size()-1);
+                        vb.rvChat.scrollToPosition(data.size() - 1);
+                    } else {
+                        Toast.makeText(requireContext(),
+                                "Ошибка: " + resp.code(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
-                @Override public void onFailure(Call<MessageDto> c, Throwable t) {
-                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                @Override public void onFailure(Call<MessageDto> call,
+                                                Throwable t) {
+                    Toast.makeText(requireContext(),
+                            t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         });
     }
 
     private void loadHistory() {
-        repo.history(otherId, new Callback<>() {
-            @Override public void onResponse(Call<List<MessageDto>> c,
-                                             Response<List<MessageDto>> r) {
-                if (r.isSuccessful() && r.body()!=null) {
-                    adapter.setData(r.body());
-                    vb.rvChat.scrollToPosition(data.size()-1);
+        repo.history(otherId, new Callback<List<MessageDto>>() {
+            @Override public void onResponse(Call<List<MessageDto>> call,
+                                             Response<List<MessageDto>> resp) {
+                if (resp.isSuccessful() && resp.body() != null) {
+                    adapter.setData(resp.body());
+                    vb.rvChat.scrollToPosition(data.size() - 1);
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Не удалось загрузить историю",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<List<MessageDto>> c, Throwable t){ }
+            @Override public void onFailure(Call<List<MessageDto>> call,
+                                            Throwable t) {
+                Toast.makeText(requireContext(),
+                        t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        vb = null;
     }
 }

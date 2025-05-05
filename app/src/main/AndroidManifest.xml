@@ -16,23 +16,30 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true">
 
+        <!-- 1. WelcomeActivity — теперь главный лаунчер -->
         <activity
-            android:name=".ui.auth.LoginActivity"
+            android:name=".ui.welcome.WelcomeActivity"
             android:exported="true"
             android:label="@string/app_name">
-
             <intent-filter>
-                <action   android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
+        <!-- 2. LoginActivity — обычная активити -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false"
+            android:label="@string/app_name" />
+
+        <!-- 3. MainActivity с deep-link -->
         <activity
             android:name=".ui.main.MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
 
-            <!-- deep-link вида:  musicrental://paid?id=11  -->
+            <!-- deep-link вида: musicrental://paid?id=11 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 

@@ -1,15 +1,22 @@
+// app/src/main/java/com/example/musicrental/ui/main/MainActivity.java
 package com.example.musicrental.ui.main;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.musicrental.R;
 import com.example.musicrental.databinding.ActivityMainBinding;
 import com.example.musicrental.ui.catalog.InstrumentListFragment;
+import com.example.musicrental.ui.chat.ChatListFragment;
+import com.example.musicrental.ui.profile.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,37 +30,56 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(vb.toolbar);
 
-        if (savedInstanceState == null) {               // первый запуск
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(vb.fragmentContainer.getId(),
-                            new InstrumentListFragment())
-                    .commit();
+        // Обработка нажатий на элементы нижнего меню
+        vb.bottomNav.setOnItemSelectedListener(item -> {
+            Fragment dest = null;
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                dest = new InstrumentListFragment();
+            } else if (id == R.id.nav_chats) {
+                dest = new ChatListFragment();
+            } else if (id == R.id.nav_profile) {
+                dest = new ProfileFragment();
+            }
+
+            if (dest != null) {
+                switchTo(dest);
+                return true;
+            }
+            return false;
+        });
+
+        // При первом запуске сразу показываем «Главную»
+        if (savedInstanceState == null) {
+            vb.bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
-        handleDeepLink(getIntent());                    // запуск через ссылку
+        // Deep-link-обработка (при возврате из браузера)
+        handleDeepLink(getIntent());
     }
-
-    /* ---------- deep-link (возврат из браузера) ---------- */
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent);                              // чтобы getIntent() вернул свежий
+        setIntent(intent);
         handleDeepLink(intent);
     }
 
-    /**
-     * musicrental://paid?id=11 – посылаем событие «обнови список броней».
-     */
+    private void switchTo(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(vb.fragmentContainer.getId(), fragment)
+                .commit();
+    }
+
     private void handleDeepLink(Intent intent) {
         Uri u = intent.getData();
         if (u == null) return;
 
         if ("paid".equals(u.getHost())) {
-            // при желании можно взять id платежа:  String id = u.getQueryParameter("id");
             FragmentManager fm = getSupportFragmentManager();
-            fm.setFragmentResult("reload_bookings", new Bundle());   // пустой bundle
+            fm.setFragmentResult("reload_bookings", new Bundle());
         }
     }
 }

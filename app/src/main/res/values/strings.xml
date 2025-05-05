@@ -37,4 +37,13 @@
     <string name="cancel">Отмена</string>
     <string name="thanks_for_review">Спасибо за Ваш отзыв!</string>
     <string name="error_with_code">Ошибка с кодом!</string>
+    <string name="home">Главная</string>
+    <string name="chats">Чаты</string>
+    <string name="comment_optional">Комментарий (необязательно)</string>
+    <string name="please_select_rating">Пожалуйста, поставьте оценку</string>
+    <string name="welcome_title">Добро пожаловать в MusicRental</string>
+    <string name="welcome_subtitle">Арендуйте музыкальные инструменты за пару кликов</string>
+    <string name="welcome_button_enter">Войти</string>
+    <string name="welcome_image_desc">Добро пожаловать</string>
+
 </resources>

@@ -1,0 +1,9 @@
+<!-- res/values/dimens.xml -->
+<resources>
+    <!-- высота BottomNavigationView -->
+    <dimen name="bottom_nav_height">56dp</dimen>
+
+
+    <!-- условная высота системной навигации -->
+    <dimen name="nav_bar_height">48dp</dimen>
+</resources>

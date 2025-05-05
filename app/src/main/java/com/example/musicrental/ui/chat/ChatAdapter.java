@@ -1,51 +1,80 @@
-// app/src/main/java/com/example/musicrental/ui/chat/ChatAdapter.java
 package com.example.musicrental.ui.chat;
 
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.musicrental.R;
 import com.example.musicrental.data.MessageDto;
 import com.example.musicrental.util.Prefs;
-
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.VH> {
+
     private final List<MessageDto> data;
     private final long me = Prefs.get().getUserId();
 
-    public ChatAdapter(List<MessageDto> data) { this.data = data; }
+    public ChatAdapter(List<MessageDto> data) {
+        this.data = data;
+    }
 
-    @Override public int getItemViewType(int pos) {
-        return data.get(pos).fromId.equals(me)
+    @Override
+    public int getItemViewType(int position) {
+        MessageDto msg = data.get(position);
+        // исходя из fromId решаем, какой layout использовать
+        return msg.fromId.equals(me)
                 ? R.layout.item_outgoing
                 : R.layout.item_incoming;
     }
 
     @NonNull @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup p, int viewType) {
-        View v = LayoutInflater.from(p.getContext())
-                .inflate(viewType, p, false);
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(viewType, parent, false);
         return new VH(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int pos) {
-        h.tvText.setText(data.get(pos).text);
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        MessageDto msg = data.get(position);
+
+        // Если это наше сообщение — вместо почты пишем «Я»
+        if (msg.fromId.equals(me)) {
+            holder.tvSender.setText("Я");
+        } else {
+            // иначе показываем почту отправителя
+            holder.tvSender.setText(msg.fromEmail != null
+                    ? msg.fromEmail
+                    : "");
+        }
+
+        holder.tvText.setText(msg.text);
     }
 
-    @Override public int getItemCount() { return data.size(); }
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
 
     public void setData(List<MessageDto> msgs) {
-        data.clear(); data.addAll(msgs); notifyDataSetChanged();
+        data.clear();
+        data.addAll(msgs);
+        notifyDataSetChanged();
     }
+
     public void add(MessageDto msg) {
-        data.add(msg); notifyItemInserted(data.size()-1);
+        data.add(msg);
+        notifyItemInserted(data.size() - 1);
     }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvText;
-        VH(View v) { super(v); tvText = v.findViewById(R.id.tvText); }
+        final TextView tvSender, tvText;
+        VH(View itemView) {
+            super(itemView);
+            tvSender = itemView.findViewById(R.id.tvSender);
+            tvText   = itemView.findViewById(R.id.tvText);
+        }
     }
 }
