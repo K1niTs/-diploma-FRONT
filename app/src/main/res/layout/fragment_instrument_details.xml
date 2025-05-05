@@ -1,0 +1,104 @@
+<!-- res/layout/fragment_instrument_details.xml -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Фото -->
+        <ImageView
+            android:id="@+id/ivPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/instrument_photo" />
+
+        <!-- Название -->
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/TextAppearance.Material3.TitleLarge"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Категория -->
+        <TextView
+            android:id="@+id/tvCategory"
+            style="@style/TextAppearance.Material3.BodyMedium"
+            android:textStyle="italic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Цена -->
+        <TextView
+            android:id="@+id/tvPrice"
+            style="@style/TextAppearance.Material3.TitleMedium"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Описание -->
+        <TextView
+            android:id="@+id/tvDesc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Кнопки владельца -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/edit"
+            android:visibility="gone"
+            android:layout_marginTop="12dp" />
+        <!-- кнопка Чат -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/chat"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:visibility="gone"
+            android:layout_marginTop="8dp" />
+
+        <!-- Кнопка «Забронировать» -->
+        <Button
+            android:id="@+id/btnBook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/book"
+            android:layout_marginTop="12dp" />
+
+        <!-- Список отзывов -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_review"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>

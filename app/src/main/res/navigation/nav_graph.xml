@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragment_catalog">
+
+    <fragment
+        android:id="@+id/fragment_catalog"
+        android:name="com.example.musicrental.ui.catalog.InstrumentListFragment"
+        tools:layout="@layout/fragment_instrument_list" >
+        <action
+            android:id="@+id/action_catalog_to_details"
+            app:destination="@id/fragment_details"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_details"
+        android:name="com.example.musicrental.ui.details.InstrumentDetailsFragment"
+        tools:layout="@layout/fragment_instrument_details" >
+        <argument
+            android:name="instrument"
+            app:argType="com.example.musicrental.data.InstrumentDto" />
+        <action
+            android:id="@+id/action_details_to_chat"
+            app:destination="@id/chatFragment">
+            <argument
+                android:name="otherId"
+                app:argType="long" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.musicrental.ui.chat.ChatFragment"
+        tools:layout="@layout/fragment_chat">
+        <argument
+            android:name="otherId"
+            app:argType="long" />
+    </fragment>
+</navigation>

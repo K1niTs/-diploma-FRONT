@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardElevation="2dp">
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="16dp">
+
+<!-- Название инструмента -->
+<TextView
+    android:id="@+id/tvInstr"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textStyle="bold"
+    android:textSize="16sp"/>
+
+<!-- Даты аренды -->
+<TextView
+    android:id="@+id/tvDates"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textColor="?attr/colorOnSurfaceVariant"/>
+
+<!-- Статус + стоимость -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="4dp">
+
+    <!-- первый TextView займёт всё доступное пространство -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textStyle="bold"/>
+
+    <!-- второй прижмётся вправо -->
+    <TextView
+        android:id="@+id/tvCost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"/>
+</LinearLayout>
+
+<!-- Кнопка «Оплатить» -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pay"
+        android:visibility="gone"/>
+</LinearLayout>
+    </com.google.android.material.card.MaterialCardView>

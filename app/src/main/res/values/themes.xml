@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Use the Material3 DayNight theme with no ActionBar -->
+    <style name="Theme.MusicRental" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your color roles, typography, etc. here if needed -->
+    </style>
+</resources>
