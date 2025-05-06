@@ -14,9 +14,4 @@
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/filters"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/action_profile"
-        android:title="@string/profile"
-        android:icon="@android:drawable/ic_menu_myplaces"
-        app:showAsAction="ifRoom"/>
 </menu>

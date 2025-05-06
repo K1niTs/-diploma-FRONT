@@ -48,6 +48,8 @@
     <string name="enable_dark_theme">Тёмная тема</string>
     <string name="message">Сообщение</string>
     <string name="me">Я</string>
+    <string name="instrument_image">Изображение инструмента</string>
+    <string name="instrument_image_placeholder">Инструмент</string>
 
 
 </resources>

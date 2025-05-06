@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/musicrental/ui/catalog/InstrumentAdapter.java
 package com.example.musicrental.ui.catalog;
 
 import android.view.LayoutInflater;
@@ -9,10 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import coil.Coil;
-import coil.ImageLoader;
 import coil.request.ImageRequest;
-
 import com.example.musicrental.R;
 import com.example.musicrental.data.InstrumentDto;
 
@@ -27,13 +25,16 @@ public class InstrumentAdapter
     private final List<InstrumentDto> items;
     private final OnItemClick         click;
 
-    public InstrumentAdapter(List<InstrumentDto> items, OnItemClick click){
-        this.items = items; this.click = click;
+    public InstrumentAdapter(List<InstrumentDto> items, OnItemClick click) {
+        this.items = items;
+        this.click = click;
     }
 
-    static final class VH extends RecyclerView.ViewHolder{
-        ImageView ivPhoto; TextView tvTitle,tvCategory,tvDesc,tvPrice;
-        VH(@NonNull View v){
+    static final class VH extends RecyclerView.ViewHolder {
+        ImageView ivPhoto;
+        TextView tvTitle, tvCategory, tvDesc, tvPrice;
+
+        VH(@NonNull View v) {
             super(v);
             ivPhoto    = v.findViewById(R.id.ivPhoto);
             tvTitle    = v.findViewById(R.id.tvTitle);
@@ -43,28 +44,36 @@ public class InstrumentAdapter
         }
     }
 
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p,int t){
-        return new VH(LayoutInflater.from(p.getContext())
-                .inflate(R.layout.item_instrument,p,false));
+    @NonNull @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_instrument, parent, false);
+        return new VH(v);
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h,int pos){
+    @Override
+    public void onBindViewHolder(@NonNull VH h, int pos) {
         InstrumentDto d = items.get(pos);
+
         h.tvTitle.setText(d.title);
         h.tvCategory.setText(d.category);
         h.tvDesc.setText(d.description);
-        h.tvPrice.setText(String.format(Locale.getDefault(),"%.0f ₽/день",d.pricePerDay));
+        h.tvPrice.setText(
+                String.format(Locale.getDefault(),"%.0f ₽/день", d.pricePerDay)
+        );
 
-        ImageLoader l = Coil.imageLoader(h.ivPhoto.getContext());
-        l.enqueue(new ImageRequest.Builder(h.ivPhoto.getContext())
+        ImageRequest req = new ImageRequest.Builder(h.ivPhoto.getContext())
                 .data(d.imageUrl)
                 .target(h.ivPhoto)
                 .placeholder(R.drawable.ic_image_placeholder)
                 .error(R.drawable.ic_image_placeholder)
-                .build());
+                .build();
+        coil.Coil.imageLoader(h.ivPhoto.getContext()).enqueue(req);
 
         h.itemView.setOnClickListener(v -> click.click(d));
     }
 
-    @Override public int getItemCount(){ return items.size(); }
+    @Override public int getItemCount() {
+        return items.size();
+    }
 }

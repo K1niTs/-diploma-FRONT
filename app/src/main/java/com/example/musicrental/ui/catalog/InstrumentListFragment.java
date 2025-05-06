@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/musicrental/ui/catalog/InstrumentListFragment.java
 package com.example.musicrental.ui.catalog;
 
 import android.os.Bundle;
@@ -14,17 +15,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicrental.R;
 import com.example.musicrental.data.InstrumentDto;
 import com.example.musicrental.databinding.FragmentInstrumentListBinding;
 import com.example.musicrental.model.Page;
 import com.example.musicrental.repository.InstrumentRepository;
+import com.example.musicrental.ui.editor.AddEditInstrumentFragment;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,7 +41,6 @@ public class InstrumentListFragment extends Fragment {
     private final FilterState filters = new FilterState();
 
     public InstrumentListFragment() {
-        // чтобы фрагмент мог создавать своё options-menu
         setHasOptionsMenu(true);
     }
 
@@ -53,44 +52,43 @@ public class InstrumentListFragment extends Fragment {
         return vb.getRoot();
     }
 
-    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    @Override public void onViewCreated(@NonNull View view,
+                                        @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // 1) RecyclerView + Adapter
         adapter = new InstrumentAdapter(data, this::openDetails);
-        vb.rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        vb.rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rv.setAdapter(adapter);
 
-        // 2) Pull-to-refresh
         vb.swipe.setOnRefreshListener(this::loadFirstPage);
 
-        // 3) Endless scroll
-        vb.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (!recyclerView.canScrollVertically(1) && page < totalPages - 1) {
+        vb.rv.addOnScrollListener(new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            @Override public void onScrolled(@NonNull androidx.recyclerview.widget.RecyclerView rv,
+                                             int dx, int dy) {
+                if (!rv.canScrollVertically(1) && page < totalPages - 1) {
                     page++;
                     loadPage();
                 }
             }
         });
 
-        // 4) FAB «Добавить»
         vb.fabAdd.setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(
                                 ((ViewGroup) requireView().getParent()).getId(),
-                                com.example.musicrental.ui.editor.AddEditInstrumentFragment.newInstance(null)
+                                AddEditInstrumentFragment.newInstance(null)
                         )
                         .addToBackStack(null)
                         .commit()
         );
 
-        // 5) Обработка результата сохранения/редактирования
         getParentFragmentManager()
                 .setFragmentResultListener("instrument_saved", this,
                         (requestKey, bundle) -> {
-                            InstrumentDto upd = (InstrumentDto) bundle.getSerializable("inst");
+                            InstrumentDto upd =
+                                    (InstrumentDto) bundle.getSerializable("inst");
                             int idx = findById(upd.id);
                             if (idx >= 0) {
                                 data.set(idx, upd);
@@ -107,10 +105,11 @@ public class InstrumentListFragment extends Fragment {
         }
     }
 
-    /** Меню «Поиск / Фильтры / Профиль» */
-    @Override public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    @Override public void onCreateOptionsMenu(@NonNull Menu menu,
+                                              @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_catalog, menu);
-        SearchView sv = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        SearchView sv = (SearchView) menu.findItem(R.id.action_search)
+                .getActionView();
         sv.setQueryHint(getString(R.string.search));
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) {
@@ -126,28 +125,16 @@ public class InstrumentListFragment extends Fragment {
     }
 
     @Override public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_filters) {
+        if (item.getItemId() == R.id.action_filters) {
             new FilterSheet(filters, f -> {
                 filters.copyFrom(f);
                 loadFirstPage();
             }).show(getParentFragmentManager(), "flt");
             return true;
-        } else if (id == R.id.action_profile) {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(
-                            ((ViewGroup) requireView().getParent()).getId(),
-                            new com.example.musicrental.ui.profile.ProfileFragment()
-                    )
-                    .addToBackStack(null)
-                    .commit();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /** Полная перезагрузка списка */
     private void loadFirstPage() {
         vb.swipe.setRefreshing(true);
         data.clear();
@@ -157,7 +144,6 @@ public class InstrumentListFragment extends Fragment {
         loadPage();
     }
 
-    /** Загружаем страницу page */
     private void loadPage() {
         repo.list(
                 filters.query,
@@ -168,25 +154,22 @@ public class InstrumentListFragment extends Fragment {
                 10,
                 filters.orderBy,
                 new Callback<Page<InstrumentDto>>() {
-                    @Override public void onResponse(Call<Page<InstrumentDto>> call,
-                                                     Response<Page<InstrumentDto>> response) {
+                    @Override public void onResponse(Call<Page<InstrumentDto>> c,
+                                                     Response<Page<InstrumentDto>> r) {
                         vb.swipe.setRefreshing(false);
-                        if (response.isSuccessful() && response.body() != null) {
-                            Page<InstrumentDto> p = response.body();
-                            totalPages = p.totalPages;
-                            data.addAll(p.content);
+                        if (r.isSuccessful() && r.body() != null) {
+                            totalPages = r.body().totalPages;
+                            data.addAll(r.body().content);
                             adapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(getContext(),
-                                    "Ошибка: " + response.code(),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(),
+                                    "Ошибка: " + r.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
-                    @Override public void onFailure(Call<Page<InstrumentDto>> call, Throwable t) {
+                    @Override public void onFailure(Call<Page<InstrumentDto>> c, Throwable t) {
                         vb.swipe.setRefreshing(false);
-                        Toast.makeText(getContext(),
-                                t.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(),
+                                t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
         );
