@@ -14,44 +14,52 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class FilterSheet extends BottomSheetDialogFragment {
 
-    public interface Listener { void onApply(FilterState state); }
+    public interface Listener {
+        void onApply(FilterState state);
+    }
 
-    private final Listener     listener;
-    private final FilterState  current;
+    private final Listener    listener;
+    private final FilterState current;
 
-    public FilterSheet(FilterState state, Listener l){
-        current  = state;
-        listener = l;
+    public FilterSheet(FilterState state, Listener listener) {
+        this.current  = state;
+        this.listener = listener;
     }
 
     @NonNull @Override
-    public Dialog onCreateDialog(@Nullable Bundle s) {
-
-        BottomSheetDialog dialog =
-                new BottomSheetDialog(requireContext(),
-                        com.google.android.material.R.style.Theme_Design_BottomSheetDialog);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        BottomSheetDialog dialog = new BottomSheetDialog(
+                requireContext(),
+                com.google.android.material.R.style.Theme_Design_BottomSheetDialog
+        );
 
         BottomsheetFiltersBinding vb =
                 BottomsheetFiltersBinding.inflate(getLayoutInflater());
         dialog.setContentView(vb.getRoot());
 
-        /* заполнение текущими значениями */
         vb.etCategory.setText(current.category);
-        if(current.minPrice!=null) vb.etMin.setText(String.valueOf(current.minPrice));
-        if(current.maxPrice!=null) vb.etMax.setText(String.valueOf(current.maxPrice));
-        vb.groupSort.check(current.orderBy!=null && current.orderBy.startsWith("price")
-                ? R.id.btnSortPrice : R.id.btnSortTitle);
+        if (current.minPrice != null) {
+            vb.etMin.setText(String.valueOf(current.minPrice));
+        }
+        if (current.maxPrice != null) {
+            vb.etMax.setText(String.valueOf(current.maxPrice));
+        }
 
         vb.btnApply.setOnClickListener(v -> {
             FilterState ns = new FilterState();
-            ns.category = TextUtils.isEmpty(vb.etCategory.getText()) ? null
+            ns.category = TextUtils.isEmpty(vb.etCategory.getText())
+                    ? null
                     : vb.etCategory.getText().toString();
-            ns.minPrice = TextUtils.isEmpty(vb.etMin.getText()) ? null
+
+            ns.minPrice = TextUtils.isEmpty(vb.etMin.getText())
+                    ? null
                     : Double.parseDouble(vb.etMin.getText().toString());
-            ns.maxPrice = TextUtils.isEmpty(vb.etMax.getText()) ? null
+
+            ns.maxPrice = TextUtils.isEmpty(vb.etMax.getText())
+                    ? null
                     : Double.parseDouble(vb.etMax.getText().toString());
-            ns.orderBy  = vb.groupSort.getCheckedButtonId()==R.id.btnSortPrice
-                    ? "pricePerDay,asc" : "title,asc";
+
+            ns.orderBy = current.orderBy;
 
             listener.onApply(ns);
             dismiss();
