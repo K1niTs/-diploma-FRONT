@@ -5,21 +5,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
+import com.example.musicrental.R;
 import com.example.musicrental.data.MessageDto;
 import com.example.musicrental.databinding.FragmentChatBinding;
 import com.example.musicrental.repository.ChatRepository;
 import com.example.musicrental.util.Prefs;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,9 +27,9 @@ public class ChatFragment extends Fragment {
 
     public static ChatFragment newInstance(long otherId) {
         ChatFragment f = new ChatFragment();
-        Bundle b = new Bundle();
-        b.putLong(ARG_OTHER_ID, otherId);
-        f.setArguments(b);
+        Bundle args = new Bundle();
+        args.putLong(ARG_OTHER_ID, otherId);
+        f.setArguments(args);
         return f;
     }
 
@@ -43,31 +40,34 @@ public class ChatFragment extends Fragment {
     private long otherId;
 
     @Nullable @Override
-    public View onCreateView(@NonNull LayoutInflater inf,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        vb = FragmentChatBinding.inflate(inf, container, false);
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        vb = FragmentChatBinding.inflate(inflater, container, false);
         return vb.getRoot();
     }
 
     @Override public void onViewCreated(
-            @NonNull View v, @Nullable Bundle s) {
-        super.onViewCreated(v, s);
+            @NonNull View view,
+            @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         otherId = requireArguments().getLong(ARG_OTHER_ID);
 
+        // 1) RecyclerView + Adapter
         adapter = new ChatAdapter(data);
         vb.rvChat.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rvChat.setAdapter(adapter);
 
-        loadHistory();
+        // 2) Pull-to-refresh
+        vb.swipeChat.setOnRefreshListener(this::loadHistory);
 
-        vb.btnSend.setOnClickListener(x -> {
+        // 3) Отправка по нажатию на endIcon
+        vb.messageInputLayout.setEndIconOnClickListener(v -> {
             String txt = vb.etMessage.getText().toString().trim();
             if (txt.isEmpty()) return;
 
             long me = Prefs.get().getUserId();
-
-            // Конструктор теперь 6-параметрический, подтягиваем fromEmail=null
             MessageDto msg = new MessageDto(
                     null,
                     me,
@@ -78,8 +78,9 @@ public class ChatFragment extends Fragment {
             );
 
             repo.send(msg, new Callback<MessageDto>() {
-                @Override public void onResponse(Call<MessageDto> call,
-                                                 Response<MessageDto> resp) {
+                @Override public void onResponse(
+                        Call<MessageDto> call,
+                        Response<MessageDto> resp) {
                     if (resp.isSuccessful() && resp.body() != null) {
                         adapter.add(resp.body());
                         vb.etMessage.setText("");
@@ -90,20 +91,25 @@ public class ChatFragment extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
-                @Override public void onFailure(Call<MessageDto> call,
-                                                Throwable t) {
+                @Override public void onFailure(Call<MessageDto> call, Throwable t) {
                     Toast.makeText(requireContext(),
                             t.getMessage(),
                             Toast.LENGTH_SHORT).show();
                 }
             });
         });
+
+        // 4) Первоначальная загрузка
+        loadHistory();
     }
 
     private void loadHistory() {
+        vb.swipeChat.setRefreshing(true);
         repo.history(otherId, new Callback<List<MessageDto>>() {
-            @Override public void onResponse(Call<List<MessageDto>> call,
-                                             Response<List<MessageDto>> resp) {
+            @Override public void onResponse(
+                    Call<List<MessageDto>> call,
+                    Response<List<MessageDto>> resp) {
+                vb.swipeChat.setRefreshing(false);
                 if (resp.isSuccessful() && resp.body() != null) {
                     adapter.setData(resp.body());
                     vb.rvChat.scrollToPosition(data.size() - 1);
@@ -113,8 +119,8 @@ public class ChatFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<List<MessageDto>> call,
-                                            Throwable t) {
+            @Override public void onFailure(Call<List<MessageDto>> call, Throwable t) {
+                vb.swipeChat.setRefreshing(false);
                 Toast.makeText(requireContext(),
                         t.getMessage(),
                         Toast.LENGTH_SHORT).show();

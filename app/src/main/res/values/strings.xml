@@ -45,5 +45,9 @@
     <string name="welcome_subtitle">Арендуйте музыкальные инструменты за пару кликов</string>
     <string name="welcome_button_enter">Войти</string>
     <string name="welcome_image_desc">Добро пожаловать</string>
+    <string name="enable_dark_theme">Тёмная тема</string>
+    <string name="message">Сообщение</string>
+    <string name="me">Я</string>
+
 
 </resources>

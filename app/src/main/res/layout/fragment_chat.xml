@@ -1,34 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChat"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeChat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:layout_marginBottom="24dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvChat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="8dp"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/messageInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_send"
+        app:endIconTint="?attr/colorPrimary"
+        app:endIconContentDescription="@string/send">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etMessage"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:hint="Сообщение"/>
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingStart="12dp"
+            android:hint="@string/message"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Отправить"/>
-    </LinearLayout>
 </LinearLayout>
