@@ -65,8 +65,8 @@ public class InstrumentAdapter
         ImageRequest req = new ImageRequest.Builder(h.ivPhoto.getContext())
                 .data(d.imageUrl)
                 .target(h.ivPhoto)
-                .placeholder(R.drawable.ic_image_placeholder)
-                .error(R.drawable.ic_image_placeholder)
+                .placeholder(R.drawable.for_add)
+                .error(R.drawable.for_add)
                 .build();
         coil.Coil.imageLoader(h.ivPhoto.getContext()).enqueue(req);
 

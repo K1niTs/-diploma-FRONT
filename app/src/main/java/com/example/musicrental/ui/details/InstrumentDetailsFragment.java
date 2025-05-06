@@ -73,8 +73,8 @@ public class InstrumentDetailsFragment extends Fragment {
 
         Glide.with(this)
                 .load(inst.imageUrl)
-                .placeholder(R.drawable.ic_image_placeholder)
-                .error(R.drawable.ic_image_placeholder)
+                .placeholder(R.drawable.for_add)
+                .error(R.drawable.for_add)
                 .into(vb.ivPhoto);
 
         long me = Prefs.get().getUserId();
