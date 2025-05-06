@@ -50,6 +50,10 @@
     <string name="me">Я</string>
     <string name="instrument_image">Изображение инструмента</string>
     <string name="instrument_image_placeholder">Инструмент</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="login">Вход</string>
+    <string name="register">Регистрация</string>
 
 
 </resources>

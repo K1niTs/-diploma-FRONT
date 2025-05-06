@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/catalog/InstrumentListFragment.java
 package com.example.musicrental.ui.catalog;
 
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicrental.R;
 import com.example.musicrental.data.InstrumentDto;
@@ -25,6 +25,7 @@ import com.example.musicrental.ui.editor.AddEditInstrumentFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,16 +57,14 @@ public class InstrumentListFragment extends Fragment {
                                         @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1) RecyclerView + Adapter
         adapter = new InstrumentAdapter(data, this::openDetails);
         vb.rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rv.setAdapter(adapter);
 
         vb.swipe.setOnRefreshListener(this::loadFirstPage);
 
-        vb.rv.addOnScrollListener(new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-            @Override public void onScrolled(@NonNull androidx.recyclerview.widget.RecyclerView rv,
-                                             int dx, int dy) {
+        vb.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
                 if (!rv.canScrollVertically(1) && page < totalPages - 1) {
                     page++;
                     loadPage();
@@ -76,29 +75,27 @@ public class InstrumentListFragment extends Fragment {
         vb.fabAdd.setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(
-                                ((ViewGroup) requireView().getParent()).getId(),
-                                AddEditInstrumentFragment.newInstance(null)
-                        )
+                        .replace(((ViewGroup) requireView().getParent()).getId(),
+                                AddEditInstrumentFragment.newInstance(null))
                         .addToBackStack(null)
                         .commit()
         );
 
-        getParentFragmentManager()
-                .setFragmentResultListener("instrument_saved", this,
-                        (requestKey, bundle) -> {
-                            InstrumentDto upd =
-                                    (InstrumentDto) bundle.getSerializable("inst");
-                            int idx = findById(upd.id);
-                            if (idx >= 0) {
-                                data.set(idx, upd);
-                                adapter.notifyItemChanged(idx);
-                            } else {
-                                data.add(0, upd);
-                                adapter.notifyItemInserted(0);
-                                vb.rv.scrollToPosition(0);
-                            }
-                        });
+        getParentFragmentManager().setFragmentResultListener(
+                "instrument_saved", this,
+                (requestKey, bundle) -> {
+                    InstrumentDto upd = (InstrumentDto) bundle.getSerializable("inst");
+                    int idx = findById(upd.id);
+                    if (idx >= 0) {
+                        data.set(idx, upd);
+                        adapter.notifyItemChanged(idx);
+                    } else {
+                        data.add(0, upd);
+                        adapter.notifyItemInserted(0);
+                        vb.rv.scrollToPosition(0);
+                    }
+                }
+        );
 
         if (savedInstanceState == null) {
             loadFirstPage();
@@ -108,18 +105,37 @@ public class InstrumentListFragment extends Fragment {
     @Override public void onCreateOptionsMenu(@NonNull Menu menu,
                                               @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_catalog, menu);
-        SearchView sv = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView sv = (SearchView) searchItem.getActionView();
         sv.setQueryHint(getString(R.string.search));
+
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) {
-                filters.query = query;
+                filters.query = query.trim();
                 loadFirstPage();
                 sv.clearFocus();
                 return true;
             }
             @Override public boolean onQueryTextChange(String newText) {
+                if (newText == null || newText.trim().isEmpty()) {
+                    filters.query = null;
+                    loadFirstPage();
+                    return true;
+                }
                 return false;
+            }
+        });
+
+        // сбрасываем поиск при сворачивании SearchView
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+                filters.query = null;
+                loadFirstPage();
+                return true;
             }
         });
     }
@@ -154,22 +170,24 @@ public class InstrumentListFragment extends Fragment {
                 10,
                 filters.orderBy,
                 new Callback<Page<InstrumentDto>>() {
-                    @Override public void onResponse(Call<Page<InstrumentDto>> c,
-                                                     Response<Page<InstrumentDto>> r) {
+                    @Override public void onResponse(Call<Page<InstrumentDto>> call,
+                                                     Response<Page<InstrumentDto>> resp) {
                         vb.swipe.setRefreshing(false);
-                        if (r.isSuccessful() && r.body() != null) {
-                            totalPages = r.body().totalPages;
-                            data.addAll(r.body().content);
+                        if (resp.isSuccessful() && resp.body() != null) {
+                            totalPages = resp.body().totalPages;
+                            data.addAll(resp.body().content);
                             adapter.notifyDataSetChanged();
                         } else {
                             Toast.makeText(requireContext(),
-                                    "Ошибка: " + r.code(), Toast.LENGTH_SHORT).show();
+                                    "Ошибка: " + resp.code(),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
-                    @Override public void onFailure(Call<Page<InstrumentDto>> c, Throwable t) {
+                    @Override public void onFailure(Call<Page<InstrumentDto>> call, Throwable t) {
                         vb.swipe.setRefreshing(false);
                         Toast.makeText(requireContext(),
-                                t.getMessage(), Toast.LENGTH_SHORT).show();
+                                t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -185,11 +203,9 @@ public class InstrumentListFragment extends Fragment {
     private void openDetails(InstrumentDto dto) {
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(
-                        ((ViewGroup) requireView().getParent()).getId(),
+                .replace(((ViewGroup) requireView().getParent()).getId(),
                         com.example.musicrental.ui.details.InstrumentDetailsFragment
-                                .newInstance(dto, null, false)
-                )
+                                .newInstance(dto, null, false))
                 .addToBackStack(null)
                 .commit();
     }
