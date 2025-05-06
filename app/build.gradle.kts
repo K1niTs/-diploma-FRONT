@@ -28,11 +28,9 @@ android {
     }
 
     compileOptions {
-        // ваш уже существующий Java 11
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
 
-        // ↓↓↓ включаем десугаринг стандартных библиотек
         isCoreLibraryDesugaringEnabled = true
     }
 
@@ -81,6 +79,7 @@ dependencies {
     // AndroidX UI
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
     // ↓↓↓ зависимость для desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")

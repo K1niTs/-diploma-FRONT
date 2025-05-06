@@ -17,6 +17,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")
     }
     versionCatalogs {
         create("libs") {
@@ -28,7 +29,7 @@ dependencyResolutionManagement {
             library("material", "com.google.android.material:material:1.9.0")
             // AndroidX
             library("androidx-recyclerview", "androidx.recyclerview:recyclerview:1.3.0")
-            library("androidx-appcompat",    "androidx.appcompat:appcompat:1.6.1")
+            library("androidx-appcompat", "androidx.appcompat:appcompat:1.6.1")
         }
     }
 }

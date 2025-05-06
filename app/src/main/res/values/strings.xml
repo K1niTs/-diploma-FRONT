@@ -54,6 +54,7 @@
     <string name="password">Пароль</string>
     <string name="login">Вход</string>
     <string name="register">Регистрация</string>
+    <string name="fullscreen_image">Изображение</string>
 
 
 </resources>
