@@ -6,7 +6,7 @@ import java.time.Instant;
 public class ReviewDto implements Serializable {
     public Long    id;
     public Long    bookingId;
-    public int     rating;          // 1..5
+    public int     rating;
     public String  comment;
     public String createdAt;
 

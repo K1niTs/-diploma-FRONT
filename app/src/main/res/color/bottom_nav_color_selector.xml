@@ -1,7 +1,5 @@
-<!-- res/color/bottom_nav_color_selector.xml -->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- активный пункт -->
     <item android:color="@color/purple_500" android:state_checked="true"/>
-    <!-- неактивный пункт -->
     <item android:color="@android:color/darker_gray"/>
 </selector>

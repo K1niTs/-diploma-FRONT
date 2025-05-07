@@ -127,7 +127,6 @@ public class InstrumentListFragment extends Fragment {
             }
         });
 
-        // сбрасываем поиск при сворачивании SearchView
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override public boolean onMenuItemActionExpand(MenuItem item) {
                 return true;

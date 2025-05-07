@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/auth/LoginActivity.java
 package com.example.musicrental.ui.auth;
 
 import android.content.Intent;
@@ -28,7 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* инициализируем Prefs, если ещё не */
         Prefs.init(getApplicationContext());
 
         vb = ActivityLoginBinding.inflate(getLayoutInflater());
@@ -38,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
         vb.btnRegister.setOnClickListener(v -> register());
     }
 
-    /* ---------------- register / login ---------------- */
 
     private void register() {
         String email = vb.etEmail.getText().toString().trim();
@@ -66,7 +63,6 @@ public class LoginActivity extends AppCompatActivity {
         api.login(req).enqueue(authCallback(email));
     }
 
-    /* ---------------- common retrofit callback ---------------- */
 
     private Callback<AuthResponse> authCallback(String email) {
         return new Callback<AuthResponse>() {
@@ -77,11 +73,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (resp.isSuccessful() && resp.body() != null) {
 
-                    /* сохраняем данные в SharedPreferences */
                     Prefs.get().setUserId(resp.body().id);
                     Prefs.get().setEmail(email);
 
-                    /* переходим в главное окно */
                     startActivity(
                             new Intent(LoginActivity.this, MainActivity.class));
                     finish();

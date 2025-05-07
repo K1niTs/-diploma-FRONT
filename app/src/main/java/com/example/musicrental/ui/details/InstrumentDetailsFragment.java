@@ -28,6 +28,7 @@ import com.example.musicrental.util.Prefs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,20 +68,18 @@ public class InstrumentDetailsFragment extends Fragment {
         return vb.getRoot();
     }
 
-    @Override public void onViewCreated(
+    @Override
+    public void onViewCreated(
             @NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1) Получаем DTO
         inst = (InstrumentDto) requireArguments().getSerializable(ARG_INST);
 
-        // 2) Заполняем поля
         vb.tvTitle   .setText(inst.title);
         vb.tvCategory.setText(inst.category);
         vb.tvPrice   .setText(String.format("%.0f ₽/день", inst.pricePerDay));
         vb.tvDesc    .setText(inst.description);
 
-        // 3) Загружаем картинку и добавляем клик по ней
         Glide.with(this)
                 .load(inst.imageUrl)
                 .placeholder(R.drawable.for_add)
@@ -88,22 +87,19 @@ public class InstrumentDetailsFragment extends Fragment {
                 .into(vb.ivPhoto);
 
         vb.ivPhoto.setOnClickListener(v -> {
-            // показываем фрагмент во весь экран
             FullscreenImageFragment
                     .newInstance(inst.imageUrl)
                     .show(getParentFragmentManager(), "fullscreen_image");
         });
 
-        // 4) Управление кнопками в зависимости от владельца
         long me = Prefs.get().getUserId();
-        boolean isOwner = inst.ownerId.equals(me);
+        boolean isOwner = Objects.equals(inst.ownerId, me);
 
         vb.btnEdit  .setVisibility(isOwner ? View.VISIBLE : View.GONE);
         vb.btnDelete.setVisibility(isOwner ? View.VISIBLE : View.GONE);
         vb.btnBook  .setVisibility(isOwner ? View.GONE    : View.VISIBLE);
         vb.btnChat  .setVisibility(isOwner ? View.GONE    : View.VISIBLE);
 
-        // 5) Клики по основным кнопкам
         vb.btnBook.setOnClickListener(x ->
                 BookDialog.newInstance(inst)
                         .show(getParentFragmentManager(), "book")
@@ -153,13 +149,11 @@ public class InstrumentDetailsFragment extends Fragment {
                         .show()
         );
 
-        // 6) Список отзывов
         reviewAdapter = new ReviewAdapter(reviews);
         vb.rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
         vb.rvReviews.setAdapter(reviewAdapter);
         loadReviews();
 
-        // 7) Кнопка «Добавить отзыв»
         boolean canReview = requireArguments().getBoolean(ARG_CAN_REVIEW, false);
         long bookingId    = requireArguments().getLong(ARG_BOOKING_ID, -1);
         vb.btnAddReview.setVisibility(canReview ? View.VISIBLE : View.GONE);

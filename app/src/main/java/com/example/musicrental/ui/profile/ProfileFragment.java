@@ -36,24 +36,19 @@ public class ProfileFragment extends Fragment {
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Инициализируем SharedPreferences
         prefs = requireContext().getSharedPreferences("app_settings", MODE_PRIVATE);
 
-        // Показываем email
         vb.tvEmail.setText(Prefs.get().getEmail());
 
-        // Устанавливаем состояние переключателя из сохранённого
         boolean darkMode = prefs.getBoolean("dark_mode", false);
         vb.switchTheme.setChecked(darkMode);
         applyTheme(darkMode);
 
-        // Слушаем переключение
         vb.switchTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("dark_mode", isChecked).apply();
             applyTheme(isChecked);
         });
 
-        // Переход к списку броней
         vb.btnBookings.setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
@@ -65,7 +60,6 @@ public class ProfileFragment extends Fragment {
                         .commit()
         );
 
-        // Выход из аккаунта
         vb.btnLogout.setOnClickListener(v -> {
             Prefs.get().clear();
             startActivity(new Intent(requireContext(), LoginActivity.class));
@@ -73,7 +67,6 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    /** Применяет тему сразу для всего приложения */
     private void applyTheme(boolean dark) {
         AppCompatDelegate.setDefaultNightMode(
                 dark ? AppCompatDelegate.MODE_NIGHT_YES

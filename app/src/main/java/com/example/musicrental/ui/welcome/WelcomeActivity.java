@@ -19,7 +19,6 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(vb.getRoot());
 
         vb.btnEnter.setOnClickListener(v -> {
-            // перейдём к экрану входа/регистрации
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });

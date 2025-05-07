@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/data/BookingDto.java
 package com.example.musicrental.data;
 
 import java.io.Serializable;

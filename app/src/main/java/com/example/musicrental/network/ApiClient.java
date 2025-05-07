@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/network/ApiClient.java
 package com.example.musicrental.network;
 
 import com.example.musicrental.util.Prefs;
@@ -13,42 +12,34 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-/** Singleton-клиент Retrofit + Moshi. */
 public final class ApiClient {
 
     private static final String BASE_URL = "http://192.168.0.41:8081/";
     private static Retrofit retrofit;
 
-    private ApiClient() {}                           // ↯ нельзя создавать экземпляры
+    private ApiClient() {}
 
-    /* ------------------------------------------------------------------ */
     public static Retrofit get() {
         if (retrofit != null) return retrofit;
 
-        /* ---------- OkHttp ---------- */
         OkHttpClient ok = new OkHttpClient.Builder()
-                // добавляем X-User-Id во все запросы, кроме /auth/*
                 .addInterceptor(chain -> {
                     Request orig = chain.request();
                     if (orig.url().encodedPath().startsWith("/auth")) {
                         return chain.proceed(orig);
                     }
-                    long uid = Prefs.get().getUserId();                // хранится в SharedPrefs
+                    long uid = Prefs.get().getUserId();
                     Request req = orig.newBuilder()
                             .addHeader("X-User-Id", String.valueOf(uid))
                             .build();
                     return chain.proceed(req);
                 })
-                // подробный лог HTTP-трафика (удалите на production)
                 .addInterceptor(new HttpLoggingInterceptor()
                         .setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
 
-        /* ---------- Moshi ---------- */
         Moshi moshi = new Moshi.Builder()
-                // java.util.Date → RFC-3339
                 .add(Date.class, new Rfc3339DateJsonAdapter())
-                // java.time.LocalDate → "yyyy-MM-dd"
                 .add(LocalDate.class, new JsonAdapter<LocalDate>() {
                     private final DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE;
                     @Override public LocalDate fromJson(JsonReader r) throws java.io.IOException {
@@ -60,7 +51,6 @@ public final class ApiClient {
                 })
                 .build();
 
-        /* ---------- Retrofit ---------- */
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(ok)

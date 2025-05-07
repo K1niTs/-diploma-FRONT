@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/chat/ChatRoomAdapter.java
 package com.example.musicrental.ui.chat;
 
 import android.view.LayoutInflater;

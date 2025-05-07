@@ -1,6 +1,5 @@
 package com.example.musicrental.ui.catalog;
 
-/** Храним текущие параметры поиска / фильтра / сортировки. */
 public class FilterState {
 
     public String  query;
@@ -9,7 +8,6 @@ public class FilterState {
     public Double  maxPrice;
     public String  orderBy = "title,asc";
 
-    /** Быстро копируем всё, что не null, из другой структуры. */
     public void copyFrom(FilterState s) {
         query     = s.query;
         category  = s.category;

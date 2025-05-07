@@ -23,7 +23,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.VH> {
     @Override
     public int getItemViewType(int position) {
         MessageDto msg = data.get(position);
-        // исходя из fromId решаем, какой layout использовать
         return msg.fromId.equals(me)
                 ? R.layout.item_outgoing
                 : R.layout.item_incoming;
@@ -40,11 +39,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.VH> {
     public void onBindViewHolder(@NonNull VH holder, int position) {
         MessageDto msg = data.get(position);
 
-        // Если это наше сообщение — вместо почты пишем «Я»
         if (msg.fromId.equals(me)) {
             holder.tvSender.setText("Я");
         } else {
-            // иначе показываем почту отправителя
             holder.tvSender.setText(msg.fromEmail != null
                     ? msg.fromEmail
                     : "");

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/repository/BookingRepository.java
 package com.example.musicrental.repository;
 
 import com.example.musicrental.data.BookingDto;

@@ -9,8 +9,7 @@ import java.util.List;
 public class Page<T> {
     public List<T> content;
 
-    /* поля «для красоты» – используются в пагинации */
     public int totalPages;
-    public int number;       // номер текущей страницы
-    public int size;         // размер страницы
+    public int number;
+    public int size;
 }

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/network/BookingApi.java
 package com.example.musicrental.network;
 
 import com.example.musicrental.data.BookingDto;
@@ -24,7 +23,6 @@ public interface BookingApi {
 
     @PATCH("bookings/{id}/cancel")
     Call<BookingDto> cancel(@Path("id") long id);
-    /* --- оплата ---------------------------------------------------- */
     @POST("bookings/{id}/pay")
-    Call<BookingDto> pay(@Path("id") long id);    // backend вернёт BookingDto c paymentUrl
+    Call<BookingDto> pay(@Path("id") long id);
 }

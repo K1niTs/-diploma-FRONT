@@ -19,13 +19,11 @@ import com.example.musicrental.data.InstrumentDto;
 
 public class BookingsFragment extends Fragment {
 
-    /* ---------- fields ---------- */
     private FragmentBookingsBinding vb;
     private final BookingRepository repo = new BookingRepository();
     private final List<BookingDto>  data = new ArrayList<>();
     private BookingAdapter          adapter;
 
-    /* ---------- life-cycle ---------- */
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf,
                              @Nullable ViewGroup c,
@@ -40,8 +38,8 @@ public class BookingsFragment extends Fragment {
         adapter = new BookingAdapter(
                 data,
                 this::cancelBooking,
-                this::handleActionClick,   // ★ теперь метод существует
-                this::openInstrument       // ★ переход к деталям
+                this::handleActionClick,
+                this::openInstrument
         );
 
         vb.rv.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -49,7 +47,6 @@ public class BookingsFragment extends Fragment {
 
         vb.swipe.setOnRefreshListener(this::load);
 
-        /* свайп-отмена */
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override public boolean onMove(@NonNull RecyclerView r,
                                             @NonNull RecyclerView.ViewHolder a,
@@ -62,7 +59,6 @@ public class BookingsFragment extends Fragment {
         load();
     }
 
-    /* ---------- REST ---------- */
     private void load(){
         vb.swipe.setRefreshing(true);
         repo.my(new Callback<>() {
@@ -95,14 +91,12 @@ public class BookingsFragment extends Fragment {
         });
     }
 
-    /* ---------- кнопка «Оплатить» / «Оставить отзыв» ---------- */
     private void handleActionClick(BookingDto b){
         if ("WAITING_PAYMENT".equals(b.status)){
-            // отзыв
             com.example.musicrental.ui.review.AddReviewDialog
                     .newInstance(b.instrumentId)
                     .show(getParentFragmentManager(),"add_rev");
-        } else {                               // "NEW"  → оплата
+        } else {
             payBooking(b);
         }
     }
@@ -123,16 +117,15 @@ public class BookingsFragment extends Fragment {
         });
     }
 
-    /* ---------- клик по строке: открыть детали инструмента ---------- */
     private static InstrumentDto toDtoFromBooking(BookingDto b) {
         return new InstrumentDto(
-                b.instrumentId,   // id
-                null,             // ownerId – не нужен
+                b.instrumentId,
+                null,
                 b.instrumentTitle,
-                null,             // imageUrl
-                0,                // pricePerDay (не используем)
-                null,             // category
-                null              // description
+                null,
+                0,
+                null,
+                null
         );
     }
     private void openInstrument(BookingDto b){

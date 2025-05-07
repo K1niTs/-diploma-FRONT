@@ -54,15 +54,12 @@ public class ChatFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         otherId = requireArguments().getLong(ARG_OTHER_ID);
 
-        // 1) RecyclerView + Adapter
         adapter = new ChatAdapter(data);
         vb.rvChat.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rvChat.setAdapter(adapter);
 
-        // 2) Pull-to-refresh
         vb.swipeChat.setOnRefreshListener(this::loadHistory);
 
-        // 3) Отправка по нажатию на endIcon
         vb.messageInputLayout.setEndIconOnClickListener(v -> {
             String txt = vb.etMessage.getText().toString().trim();
             if (txt.isEmpty()) return;
@@ -99,7 +96,6 @@ public class ChatFragment extends Fragment {
             });
         });
 
-        // 4) Первоначальная загрузка
         loadHistory();
     }
 

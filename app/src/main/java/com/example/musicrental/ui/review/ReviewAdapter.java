@@ -48,7 +48,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.VH>{
                 (r.comment == null || r.comment.isEmpty()) ? "—" : r.comment
         );
 
-        // Разбираем и форматируем дату из строки
         OffsetDateTime odt = OffsetDateTime.parse(r.createdAt);
         h.tvDate.setText(fmt.format(odt));
     }

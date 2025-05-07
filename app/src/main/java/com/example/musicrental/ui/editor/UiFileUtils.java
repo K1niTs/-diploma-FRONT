@@ -7,7 +7,6 @@ import android.provider.MediaStore;
 
 import java.io.File;
 
-/** Очень упрощённое получение file-path из Uri (Gallery pick). */
 class UiFileUtils {
 
     static String getPath(Context ctx, Uri uri) {

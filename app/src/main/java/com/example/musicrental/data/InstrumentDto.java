@@ -1,6 +1,6 @@
 package com.example.musicrental.data;
 import java.io.Serializable;
-public class InstrumentDto implements Serializable {   // ← implements Serializable
+public class InstrumentDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public Long   id;
@@ -8,8 +8,8 @@ public class InstrumentDto implements Serializable {   // ← implements Seriali
     public String title;
     public String description;
     public double pricePerDay;
-    public String category;     // ← УЖЕ было
-    public String imageUrl;     // ← новинка
+    public String category;
+    public String imageUrl;
 
     public InstrumentDto() { }
 

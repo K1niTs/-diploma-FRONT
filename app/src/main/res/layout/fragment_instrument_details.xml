@@ -1,4 +1,3 @@
-<!-- res/layout/fragment_instrument_details.xml -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +9,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Фото -->
         <ImageView
             android:id="@+id/ivPhoto"
             android:layout_width="match_parent"
@@ -18,7 +16,6 @@
             android:scaleType="centerCrop"
             android:contentDescription="@string/instrument_photo" />
 
-        <!-- Название -->
         <TextView
             android:id="@+id/tvTitle"
             style="@style/TextAppearance.Material3.TitleLarge"
@@ -26,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Категория -->
         <TextView
             android:id="@+id/tvCategory"
             style="@style/TextAppearance.Material3.BodyMedium"
@@ -34,7 +30,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Цена -->
         <TextView
             android:id="@+id/tvPrice"
             style="@style/TextAppearance.Material3.TitleMedium"
@@ -42,7 +37,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Описание -->
         <TextView
             android:id="@+id/tvDesc"
             style="@style/TextAppearance.Material3.BodyLarge"
@@ -50,7 +44,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Кнопки владельца -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEdit"
             android:layout_width="match_parent"
@@ -58,7 +51,6 @@
             android:text="@string/edit"
             android:visibility="gone"
             android:layout_marginTop="12dp" />
-        <!-- кнопка Чат -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChat"
             android:layout_width="match_parent"
@@ -76,7 +68,6 @@
             android:visibility="gone"
             android:layout_marginTop="8dp" />
 
-        <!-- Кнопка «Забронировать» -->
         <Button
             android:id="@+id/btnBook"
             android:layout_width="match_parent"
@@ -84,7 +75,6 @@
             android:text="@string/book"
             android:layout_marginTop="12dp" />
 
-        <!-- Список отзывов -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReviews"
             android:layout_width="match_parent"

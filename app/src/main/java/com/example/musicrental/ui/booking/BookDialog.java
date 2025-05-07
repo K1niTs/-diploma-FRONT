@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/booking/BookDialog.java
 package com.example.musicrental.ui.booking;
 
 import android.app.Dialog;
@@ -30,13 +29,11 @@ public class BookDialog extends DialogFragment {
         return d;
     }
 
-    /* --- fields --- */
 
     private DialogBookBinding vb;
     private InstrumentDto     inst;
     private final BookingRepository repo = new BookingRepository();
 
-    /* ---------- life-cycle ---------- */
 
     @NonNull @Override
     public Dialog onCreateDialog(@Nullable Bundle s) {
@@ -55,7 +52,6 @@ public class BookDialog extends DialogFragment {
         return d;
     }
 
-    /* ---------- helpers ---------- */
 
     private void pickDate(View target){
         MaterialDatePicker<Long> dp = MaterialDatePicker.Builder.datePicker().build();
@@ -75,13 +71,13 @@ public class BookDialog extends DialogFragment {
         if (!to.isAfter(from)) { toast("Дата окончания должна быть позже"); return; }
 
         BookingDto dto = new BookingDto(
-                null,                                           // id
+                null,
                 com.example.musicrental.util.Prefs.get().getUserId(),
                 inst.id,
-                inst.title,                                     // instrumentTitle
+                inst.title,
                 from, to,
                 0, "NEW",
-                null                                            // paymentUrl – создаст backend
+                null
         );
 
         repo.create(dto, new Callback<>() {
@@ -89,7 +85,6 @@ public class BookDialog extends DialogFragment {
                                              @NonNull Response<BookingDto> r) {
                 if (r.isSuccessful() && r.body()!=null) {
                     BookingDto resp = r.body();
-                    /* если сервер сразу вернул ссылку на оплату — откроем её */
                     if (resp.paymentUrl != null) {
                         startActivity(new Intent(Intent.ACTION_VIEW,
                                 Uri.parse(resp.paymentUrl)));

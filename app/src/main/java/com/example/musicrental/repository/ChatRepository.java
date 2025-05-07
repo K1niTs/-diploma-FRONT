@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/repository/ChatRepository.java
 package com.example.musicrental.repository;
 
 import com.example.musicrental.data.ChatRoomDto;
@@ -18,7 +17,6 @@ public class ChatRepository {
     public void send(MessageDto msg, Callback<MessageDto> cb) {
         api.send(msg).enqueue(cb);
     }
-    // Новый метод
     public void rooms(Callback<List<ChatRoomDto>> cb) {
         api.rooms().enqueue(cb);
     }

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/main/MainActivity.java
 package com.example.musicrental.ui.main;
 
 import android.content.Intent;
@@ -30,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(vb.toolbar);
 
-        // Обработка нажатий на элементы нижнего меню
         vb.bottomNav.setOnItemSelectedListener(item -> {
             Fragment dest = null;
             int id = item.getItemId();
@@ -50,12 +48,10 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // При первом запуске сразу показываем «Главную»
         if (savedInstanceState == null) {
             vb.bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
-        // Deep-link-обработка (при возврате из браузера)
         handleDeepLink(getIntent());
     }
 

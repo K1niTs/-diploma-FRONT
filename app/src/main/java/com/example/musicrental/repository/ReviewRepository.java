@@ -13,12 +13,10 @@ public class ReviewRepository {
 
     private final ReviewApi api = ApiClient.get().create(ReviewApi.class);
 
-    /* ---- GET ---- */
     public void list(long instrumentId, Callback<List<ReviewDto>> cb){
         api.list(instrumentId).enqueue(cb);
     }
 
-    /* ---- POST ---- */
     public void add(long instrumentId, int rating, String comment,
                     Callback<ReviewDto> cb){
         ReviewDto body = new ReviewDto(null, null, rating, comment, null);

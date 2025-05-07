@@ -54,7 +54,6 @@ public class AddReviewDialog extends DialogFragment {
             return;
         }
 
-        // Обращаемся к репозиторию — он возвращает ReviewDto
         repo.add(instrId, rating, comment, new Callback<ReviewDto>() {
             @Override public void onResponse(@NonNull Call<ReviewDto> call,
                                              @NonNull Response<ReviewDto> resp) {

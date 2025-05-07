@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/catalog/InstrumentAdapter.java
 package com.example.musicrental.ui.catalog;
 
 import android.view.LayoutInflater;

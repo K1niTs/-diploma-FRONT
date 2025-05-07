@@ -42,7 +42,6 @@ public class ChatListFragment extends Fragment {
                                         @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // RecyclerView + Adapter
         adapter = new ChatRoomAdapter(data, room -> {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -56,10 +55,8 @@ public class ChatListFragment extends Fragment {
         vb.rvChats.setLayoutManager(new LinearLayoutManager(requireContext()));
         vb.rvChats.setAdapter(adapter);
 
-        // pull-to-refresh списка чатов
         vb.swipeChats.setOnRefreshListener(this::loadRooms);
 
-        // первоначальная загрузка
         vb.swipeChats.setRefreshing(true);
         loadRooms();
     }

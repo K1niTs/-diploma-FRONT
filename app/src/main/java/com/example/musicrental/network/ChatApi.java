@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/network/ChatApi.java
 package com.example.musicrental.network;
 
 import com.example.musicrental.data.ChatRoomDto;
@@ -15,7 +14,6 @@ public interface ChatApi {
     @POST("chat/send")
     Call<MessageDto> send(@Body MessageDto msg);
 
-    // Новый эндпоинт
     @GET("chat/rooms")
     Call<List<ChatRoomDto>> rooms();
 }

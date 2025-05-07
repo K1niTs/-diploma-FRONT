@@ -12,12 +12,10 @@ import retrofit2.http.Path;
 
 public interface ReviewApi {
 
-    /* ---------- GET /instruments/{id}/reviews ---------- */
     @GET("instruments/{id}/reviews")
     Call<List<ReviewDto>> list(@Path("id") long instrumentId);
 
-    /* ---------- POST /instruments/{id}/reviews ---------- */
     @POST("instruments/{id}/reviews")
     Call<ReviewDto> add(@Path("id") long instrumentId,
-                        @Body ReviewDto body);          // JSON-тело
+                        @Body ReviewDto body);
 }

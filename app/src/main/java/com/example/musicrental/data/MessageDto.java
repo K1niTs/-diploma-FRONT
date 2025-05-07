@@ -7,12 +7,11 @@ public class MessageDto implements Serializable {
     public Long    fromId;
     public Long    toId;
     public String  text;
-    public String  createdAt; // RFC-3339 строка
-    public String  fromEmail; // <— новое поле для почты отправителя
+    public String  createdAt;
+    public String  fromEmail;
 
     public MessageDto() {}
 
-    // Конструктор (Retrofit заполнит все поля по именам JSON)
     public MessageDto(Long id, Long fromId, Long toId,
                       String text, String createdAt,
                       String fromEmail) {

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/musicrental/ui/editor/AddEditInstrumentFragment.java
 package com.example.musicrental.ui.editor;
 
 import android.Manifest;
@@ -45,7 +44,7 @@ public class AddEditInstrumentFragment extends Fragment {
 
     private FragmentAddEditInstrumentBinding vb;
     private final InstrumentRepository repo = new InstrumentRepository();
-    private InstrumentDto editing;      // если не null — режим редактирования
+    private InstrumentDto editing;
     private Uri pickedPhoto;
 
     @Nullable @Override
@@ -58,7 +57,6 @@ public class AddEditInstrumentFragment extends Fragment {
 
     @Override public void onViewCreated(@NonNull View v, @Nullable Bundle s) {
         super.onViewCreated(v, s);
-        // проверяем, в каком режиме
         editing = (InstrumentDto) getArguments().getSerializable(ARG_INSTR);
         if (editing != null) {
             fillForm(editing);
@@ -71,10 +69,8 @@ public class AddEditInstrumentFragment extends Fragment {
             InstrumentDto dto = toDto();
 
             if (editing == null) {
-                // режим создания
                 repo.addOrUpdate(dto, saveCallback);
             } else {
-                // режим редактирования: PUT /instruments/{id}
                 repo.update(editing.id, dto, saveCallback);
             }
         });
@@ -85,7 +81,6 @@ public class AddEditInstrumentFragment extends Fragment {
         vb = null;
     }
 
-    /** Заполняем форму из существующего объекта */
     private void fillForm(InstrumentDto d) {
         vb.etTitle   .setText(d.title);
         vb.etCategory.setText(d.category);
@@ -96,7 +91,6 @@ public class AddEditInstrumentFragment extends Fragment {
         }
     }
 
-    /** Проверяем обязательные поля */
     private boolean validate() {
         if (TextUtils.isEmpty(vb.etTitle.getText())) {
             toast("Введите название"); return false;
@@ -107,7 +101,6 @@ public class AddEditInstrumentFragment extends Fragment {
         return true;
     }
 
-    /** Собираем DTO для отправки */
     private InstrumentDto toDto() {
         long userId = Prefs.get().getUserId();
         return new InstrumentDto(
@@ -121,13 +114,11 @@ public class AddEditInstrumentFragment extends Fragment {
         );
     }
 
-    /** Общий колбэк для create/update */
     private final Callback<InstrumentDto> saveCallback = new Callback<>() {
         @Override
         public void onResponse(Call<InstrumentDto> call, Response<InstrumentDto> resp) {
             if (resp.isSuccessful() && resp.body() != null) {
                 InstrumentDto saved = resp.body();
-                // загрузим фото, если выбрано
                 if (pickedPhoto != null) {
                     File f = new File(UiFileUtils.getPath(requireContext(), pickedPhoto));
                     repo.uploadPhoto(saved.id, f, new Callback<>() {
@@ -151,7 +142,6 @@ public class AddEditInstrumentFragment extends Fragment {
         }
     };
 
-    /** Отправляем результат на список и закрываем фрагмент */
     private void finishOk(InstrumentDto dto) {
         Bundle b = new Bundle();
         b.putSerializable("inst", dto);
@@ -164,7 +154,6 @@ public class AddEditInstrumentFragment extends Fragment {
         Toast.makeText(requireContext(), m, Toast.LENGTH_SHORT).show();
     }
 
-    // ------ image picker ------
     private final ActivityResultLauncher<String> permReq =
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),

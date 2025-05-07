@@ -17,10 +17,9 @@ import java.util.Locale;
 
 class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.VH> {
 
-    /* коллбэки */
     interface OnCancel { void cancel(BookingDto b); }
-    interface OnAction { void action(BookingDto b); }   // Pay или Review
-    interface OnOpen   { void open  (BookingDto b); }   // перейти в details
+    interface OnAction { void action(BookingDto b); }
+    interface OnOpen   { void open  (BookingDto b); }
 
     private final List<BookingDto> data;
     private final OnCancel cbCancel;
@@ -37,7 +36,6 @@ class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.VH> {
         cbOpen   = open;
     }
 
-    /* holder */
     static class VH extends RecyclerView.ViewHolder{
         final TextView tvInstr,tvDates,tvStatus,tvCost;
         final MaterialButton btnAction;
@@ -64,19 +62,17 @@ class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.VH> {
         h.tvStatus.setText(b.status);
         h.tvCost  .setText(String.format(Locale.getDefault(),"%.0f ₽", b.totalCost));
 
-        /* ---------- кнопка ---------- */
         boolean needPay    = "NEW".equals(b.status);
         boolean needReview = "WAITING_PAYMENT".equals(b.status);
 
         if (needPay){
-            h.btnAction.setText(R.string.pay);     // строка «Оплатить»
+            h.btnAction.setText(R.string.pay);
         } else if (needReview){
-            h.btnAction.setText(R.string.review);  // строка «Отзыв»
+            h.btnAction.setText(R.string.review);
         }
         h.btnAction.setVisibility( (needPay||needReview)? View.VISIBLE:View.GONE );
         h.btnAction.setOnClickListener(v -> cbAction.action(b));
 
-        /* ---------- клик по карточке ---------- */
         h.itemView.setOnClickListener(v -> cbOpen.open(b));
     }
 
