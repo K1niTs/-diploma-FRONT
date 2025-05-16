@@ -5,17 +5,21 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -23,6 +27,7 @@ import com.example.musicrental.data.InstrumentDto;
 import com.example.musicrental.databinding.FragmentAddEditInstrumentBinding;
 import com.example.musicrental.repository.InstrumentRepository;
 import com.example.musicrental.util.Prefs;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 
@@ -31,8 +36,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AddEditInstrumentFragment extends Fragment {
-
     private static final String ARG_INSTR = "instr";
+
+    private FragmentAddEditInstrumentBinding vb;
+    private final InstrumentRepository repo = new InstrumentRepository();
+    private InstrumentDto editing;
+
+    private Uri pickedPhoto;
+    private Uri cameraUri;
+    private File cameraFile;
+    private ActivityResultLauncher<String> permReq;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private ActivityResultLauncher<Uri> cameraLauncher;
 
     public static AddEditInstrumentFragment newInstance(@Nullable InstrumentDto dto) {
         Bundle b = new Bundle();
@@ -42,62 +57,72 @@ public class AddEditInstrumentFragment extends Fragment {
         return f;
     }
 
-    private FragmentAddEditInstrumentBinding vb;
-    private final InstrumentRepository repo = new InstrumentRepository();
-    private InstrumentDto editing;
-    private Uri pickedPhoto;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @Nullable @Override
-    public View onCreateView(@NonNull LayoutInflater inf,
+        permReq = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(), granted -> {
+                    if (granted) openCamera();
+                    else toast("Требуется разрешение на камеру");
+                }
+        );
+
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        pickedPhoto = result.getData().getData();
+                        Glide.with(this).load(pickedPhoto).into(vb.ivPhoto);
+                    }
+                }
+        );
+
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(), success -> {
+                    if (success && cameraUri != null) {
+                        pickedPhoto = cameraUri;
+                        Glide.with(this).load(pickedPhoto).into(vb.ivPhoto);
+                    }
+                }
+        );
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        vb = FragmentAddEditInstrumentBinding.inflate(inf, container, false);
+        vb = FragmentAddEditInstrumentBinding.inflate(inflater, container, false);
         return vb.getRoot();
     }
 
-    @Override public void onViewCreated(@NonNull View v, @Nullable Bundle s) {
-        super.onViewCreated(v, s);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         editing = (InstrumentDto) getArguments().getSerializable(ARG_INSTR);
-        if (editing != null) {
-            fillForm(editing);
-        }
+        if (editing != null) fillForm(editing);
 
-        vb.btnPick.setOnClickListener(x -> pickImage());
-
-        vb.btnSave.setOnClickListener(x -> {
-            if (!validate()) return;
-            InstrumentDto dto = toDto();
-
-            if (editing == null) {
-                repo.addOrUpdate(dto, saveCallback);
-            } else {
-                repo.update(editing.id, dto, saveCallback);
-            }
-        });
+        vb.btnPick.setOnClickListener(v -> showPickDialog());
+        vb.btnSave.setOnClickListener(v -> saveInstrument());
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         vb = null;
     }
 
     private void fillForm(InstrumentDto d) {
-        vb.etTitle   .setText(d.title);
+        vb.etTitle.setText(d.title);
         vb.etCategory.setText(d.category);
-        vb.etPrice   .setText(String.valueOf(d.pricePerDay));
-        vb.etDesc    .setText(d.description);
-        if (d.imageUrl != null) {
-            Glide.with(this).load(d.imageUrl).into(vb.ivPhoto);
-        }
+        vb.etPrice.setText(String.valueOf(d.pricePerDay));
+        vb.etDesc.setText(d.description);
+        if (d.imageUrl != null) Glide.with(this).load(d.imageUrl).into(vb.ivPhoto);
     }
 
     private boolean validate() {
-        if (TextUtils.isEmpty(vb.etTitle.getText())) {
-            toast("Введите название"); return false;
-        }
-        if (TextUtils.isEmpty(vb.etPrice.getText())) {
-            toast("Введите цену"); return false;
-        }
+        if (TextUtils.isEmpty(vb.etTitle.getText())) { toast("Введите название"); return false; }
+        if (TextUtils.isEmpty(vb.etPrice.getText())) { toast("Введите цену"); return false; }
         return true;
     }
 
@@ -106,34 +131,56 @@ public class AddEditInstrumentFragment extends Fragment {
         return new InstrumentDto(
                 editing == null ? null : editing.id,
                 userId,
-                vb.etTitle   .getText().toString().trim(),
-                vb.etDesc    .getText().toString().trim(),
+                vb.etTitle.getText().toString().trim(),
+                vb.etDesc.getText().toString().trim(),
                 Double.parseDouble(vb.etPrice.getText().toString().trim()),
                 vb.etCategory.getText().toString().trim(),
                 null
         );
     }
 
+    private void showPickDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Добавить фото")
+                .setItems(new String[]{"С камеры", "Из галереи"}, (dialog, which) -> {
+                    if (which == 0) openCamera(); else openGallery();
+                })
+                .show();
+    }
+
+    private void saveInstrument() {
+        if (!validate()) return;
+        InstrumentDto dto = toDto();
+        if (editing == null) repo.addOrUpdate(dto, saveCallback);
+        else repo.update(editing.id, dto, saveCallback);
+    }
+
     private final Callback<InstrumentDto> saveCallback = new Callback<>() {
         @Override
-        public void onResponse(Call<InstrumentDto> call, Response<InstrumentDto> resp) {
-            if (resp.isSuccessful() && resp.body() != null) {
-                InstrumentDto saved = resp.body();
+        public void onResponse(Call<InstrumentDto> call, Response<InstrumentDto> response) {
+            if (response.isSuccessful() && response.body() != null) {
+                InstrumentDto saved = response.body();
                 if (pickedPhoto != null) {
-                    File f = new File(UiFileUtils.getPath(requireContext(), pickedPhoto));
-                    repo.uploadPhoto(saved.id, f, new Callback<>() {
-                        @Override public void onResponse(Call<InstrumentDto> c2, Response<InstrumentDto> r2) {
-                            finishOk(saved);
-                        }
-                        @Override public void onFailure(Call<InstrumentDto> c2, Throwable t) {
-                            finishOk(saved);
-                        }
-                    });
-                } else {
-                    finishOk(saved);
-                }
+                    File uploadFile = cameraFile != null ? cameraFile : new File(
+                            UiFileUtils.getPath(requireContext(), pickedPhoto)
+                    );
+                    if (uploadFile.exists()) {
+                        // Загружаем фото
+                        repo.uploadPhoto(saved.id, uploadFile, new Callback<>() {
+                            @Override
+                            public void onResponse(Call<InstrumentDto> c2, Response<InstrumentDto> r2) {
+                                InstrumentDto updated = r2.body() != null ? r2.body() : saved;
+                                finishOk(updated);
+                            }
+                            @Override
+                            public void onFailure(Call<InstrumentDto> c2, Throwable t) {
+                                finishOk(saved);
+                            }
+                        });
+                    } else finishOk(saved);
+                } else finishOk(saved);
             } else {
-                toast("Ошибка " + resp.code());
+                toast("Ошибка: " + response.code());
             }
         }
         @Override
@@ -143,51 +190,36 @@ public class AddEditInstrumentFragment extends Fragment {
     };
 
     private void finishOk(InstrumentDto dto) {
-        Bundle b = new Bundle();
-        b.putSerializable("inst", dto);
-        getParentFragmentManager()
-                .setFragmentResult("instrument_saved", b);
+        Bundle result = new Bundle();
+        result.putSerializable("inst", dto);
+        getParentFragmentManager().setFragmentResult("instrument_saved", result);
         requireActivity().getSupportFragmentManager().popBackStack();
     }
 
-    private void toast(String m) {
-        Toast.makeText(requireContext(), m, Toast.LENGTH_SHORT).show();
+    private void toast(String msg) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    private final ActivityResultLauncher<String> permReq =
-            registerForActivityResult(
-                    new ActivityResultContracts.RequestPermission(),
-                    granted -> {
-                        if (granted) startPick();
-                        else toast("Нет доступа к файлам");
-                    });
+    private void openGallery() {
+        Intent pick = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(pick);
+    }
 
-    private final ActivityResultLauncher<Intent> imgPick =
-            registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    res -> {
-                        if (res.getResultCode() == Activity.RESULT_OK && res.getData() != null) {
-                            pickedPhoto = res.getData().getData();
-                            Glide.with(this).load(pickedPhoto).into(vb.ivPhoto);
-                        }
-                    });
-
-    private static final String PERM_MEDIA =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                    ? Manifest.permission.READ_MEDIA_IMAGES
-                    : Manifest.permission.READ_EXTERNAL_STORAGE;
-
-    private void pickImage() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), PERM_MEDIA) == PackageManager.PERMISSION_GRANTED) {
-            startPick();
-        } else {
-            permReq.launch(PERM_MEDIA);
+    private void openCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            permReq.launch(Manifest.permission.CAMERA);
+            return;
         }
-    }
-
-    private void startPick() {
-        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imgPick.launch(i);
+        cameraFile = new File(
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                "photo_" + System.currentTimeMillis() + ".jpg"
+        );
+        cameraUri = FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().getPackageName() + ".provider",
+                cameraFile
+        );
+        cameraLauncher.launch(cameraUri);
     }
 }
